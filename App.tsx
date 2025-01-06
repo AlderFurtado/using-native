@@ -5,114 +5,152 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import {NativeModules} from 'react-native';
+const {CalculatorModule} = NativeModules
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
 
 function App(): React.JSX.Element {
+  const [primesNative, setPrimesNative] = useState("")
+  const [timeNative, setTimeNative] = useState("0")
+  const [primesJs, setPrimesJs] = useState("")
+  const [timeJs, setTimeJs] = useState("0")
+  const [isLoadingJs, setIsLoadingJs] = useState(false)
+  const [isLoadingNative, setIsLoadingNative] = useState(false)
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  function findPrimeNumbersNative(limit:number): string{
+    return CalculatorModule.findPrimeNumbers(limit) 
+  }
+
+  function findPrimesNumberJs(limit:number): string{
+    let primes = []
+    for (let index = 1; index <= limit; index++) {
+      let isPrime = true
+      for (let focus = 1; focus <= index; focus++) {
+        if(focus != 1 && focus != index){
+          const result = index % focus
+          if(result == 0) isPrime = false
+        }
+      }
+      if(isPrime) primes.push(index)
+    }
+    return primes.join(", ")
+  }
+ 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
+      <View style={{justifyContent:'center',alignItems:'center',marginTop:12}}>
+        <Text
           style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+            fontSize:22,
+          }}
+        >Find primes number(10000)</Text>
+        <Text
+          style={{
+            fontSize:22,
+          }}
+        >Encontre números primos(10000)</Text>
+      </View>
+      
+      <View style={{
+        flexDirection:'row',
+      }}>
+        <TouchableOpacity
+        style={{
+          flex:1,
+          justifyContent:'center',
+          alignItems:'center',
+          backgroundColor: "yellow"
+        }}
+          onPress={
+            () => {
+              let start = Date.now();
+              let primesJs = findPrimesNumberJs(10000)
+              let timeTakenJs = Date.now() - start;
+              setPrimesJs(primesJs)
+              setTimeJs(timeTakenJs.toString())
+            }
+          }
+        >
+          <Text>JS</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+        style={{
+          flex:1,
+          justifyContent:'center',
+          alignItems:'center',
+          backgroundColor: "grey"
+        }}
+          onPress={
+            () => {
+              let start = Date.now();
+              let primesNative = findPrimeNumbersNative(10000)
+              let timeTakenNative = Date.now() - start;
+              setPrimesNative(primesNative)
+              setTimeNative(timeTakenNative.toString())
+            }
+          }
+        >
+          <Text>Native</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <View style={{
+        flexDirection:'row',
+      }}>
+        <ScrollView style={{
+          flex:1
+        }}>
+          <Text
+            style={{
+              fontSize:14,
+              fontWeight:'bold'
+            }}
+          >executation time: {timeJs} ms</Text>
+          <Text>{primesJs}</Text>
+        </ScrollView>
+        <ScrollView style={{
+          flex:1
+        }}>
+          <Text
+            style={{
+              fontSize:14,
+              fontWeight:'bold'
+            }}
+          >executation time: {timeNative} ms</Text>
+          <Text>{primesNative}</Text>
+        </ScrollView>
+      </View>
+   
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
