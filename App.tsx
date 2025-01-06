@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  ActivityIndicator,
   Button,
   SafeAreaView,
   ScrollView,
@@ -61,7 +62,9 @@ function App(): React.JSX.Element {
   }
  
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView style={{
+      padding:12
+    }}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
@@ -71,14 +74,13 @@ function App(): React.JSX.Element {
           style={{
             fontSize:22,
           }}
-        >Find primes number(10000)</Text>
+        >Find prime numbers (20000)</Text>
         <Text
           style={{
             fontSize:22,
           }}
-        >Encontre números primos(10000)</Text>
+        >Encontre números primos (20000)</Text>
       </View>
-      
       <View style={{
         flexDirection:'row',
       }}>
@@ -87,15 +89,21 @@ function App(): React.JSX.Element {
           flex:1,
           justifyContent:'center',
           alignItems:'center',
-          backgroundColor: "yellow"
+          backgroundColor: "yellow",
+          margin: 12,
+          paddingVertical:6
         }}
           onPress={
             () => {
-              let start = Date.now();
-              let primesJs = findPrimesNumberJs(10000)
-              let timeTakenJs = Date.now() - start;
-              setPrimesJs(primesJs)
-              setTimeJs(timeTakenJs.toString())
+              setIsLoadingJs(true)
+              setTimeout(() => {
+                let start = Date.now();
+                let primesJs = findPrimesNumberJs(20000)
+                let timeTakenJs = Date.now() - start;
+                setPrimesJs(primesJs)
+                setTimeJs(timeTakenJs.toString())
+                setIsLoadingJs(false)
+              },200)
             }
           }
         >
@@ -106,15 +114,21 @@ function App(): React.JSX.Element {
           flex:1,
           justifyContent:'center',
           alignItems:'center',
-          backgroundColor: "grey"
+          backgroundColor: "grey", 
+          margin: 12,
+          paddingVertical:6
         }}
           onPress={
             () => {
-              let start = Date.now();
-              let primesNative = findPrimeNumbersNative(10000)
-              let timeTakenNative = Date.now() - start;
-              setPrimesNative(primesNative)
-              setTimeNative(timeTakenNative.toString())
+              setIsLoadingNative(true)
+              setTimeout(() => {
+                let start = Date.now();
+                let primesNative = findPrimeNumbersNative(20000)
+                let timeTakenNative = Date.now() - start;
+                setPrimesNative(primesNative)
+                setTimeNative(timeTakenNative.toString())
+                setIsLoadingNative(false)
+              },200)
             }
           }
         >
@@ -133,7 +147,16 @@ function App(): React.JSX.Element {
               fontSize:14,
               fontWeight:'bold'
             }}
-          >executation time: {timeJs} ms</Text>
+          >Execution time:</Text>
+            <Text
+           style={{
+            fontSize:22,
+            fontWeight:'bold'
+          }}
+          >
+          {timeJs} ms
+          </Text>
+          {isLoadingJs && <ActivityIndicator/>}
           <Text>{primesJs}</Text>
         </ScrollView>
         <ScrollView style={{
@@ -144,7 +167,16 @@ function App(): React.JSX.Element {
               fontSize:14,
               fontWeight:'bold'
             }}
-          >executation time: {timeNative} ms</Text>
+          >Execution time: </Text>
+          <Text
+           style={{
+            fontSize:22,
+            fontWeight:'bold'
+          }}
+          >
+          {timeNative} ms
+          </Text>
+          {isLoadingNative && <ActivityIndicator/>}
           <Text>{primesNative}</Text>
         </ScrollView>
       </View>
